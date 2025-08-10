@@ -18,18 +18,35 @@ if (isset($_COOKIE['token'])) {
     header("Location: /register");
     exit;
 }
-if (isset($_COOKIE['kiosk_auth'])) {
+if (isset($_COOKIE['kiosk_token'])) {
     try {
-        $decoded_kiosk = JWT::decode($_COOKIE['kiosk_auth'], new Key($key, 'HS256'));
+        $decoded_kiosk = JWT::decode($_COOKIE['kiosk_token'], new Key($key, 'HS256'));
     } catch (Exception $e) {
-        setcookie("kiosk_auth", "", time() - 3600, "/");
+        setcookie("kiosk_token", "", time() - 3600, "/");
         setcookie("token", "", time() - 3600, "/");
         header("Location: /");
         exit();
     }
 } else {
-    setcookie("kiosk_auth", "", time() - 3600, "/");
+    setcookie("kiosk_token", "", time() - 3600, "/");
     setcookie("token", "", time() - 3600, "/");
     header("Location: /");
     exit();
+}
+
+if (isset($_COOKIE['visit_token'])) {
+    try {
+        $visit_token = $_COOKIE['visit_token'];
+        $check_visit_token = JWT::decode($_COOKIE['visit_token'], new Key($key, 'HS256'));
+
+        header("Location: /visit");
+    } catch (Exception $e) {
+        setcookie("visit_token", "", time() - 3600, "/");
+        echo "
+        <script>
+            window.location.href = '/user-location';
+        </script>
+        ";
+        exit();
+    }
 }

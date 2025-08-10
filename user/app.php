@@ -6,11 +6,30 @@ include "./lib/key.php";
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
-if (isset($_COOKIE['kiosk_auth'])) {
-    $decoded = JWT::decode($_COOKIE['kiosk_auth'], new Key($key, 'HS256'));
+if (isset($_COOKIE['kiosk_token'])) {
+    try {
+        $decoded = JWT::decode($_COOKIE['kiosk_token'], new Key($key, 'HS256'));
 
-    if ($decoded->data->isAuthorized) {
-        header("Location: /register");
+        if ($decoded->data->isAuthorized) {
+            header("Location: /register");
+        } else {
+            header("Location: /unauthorize");
+        }
+    } catch (Exception $e) {
+        header("Location: /unauthorize");
+    }
+}
+if (isset($_COOKIE['visit_token'])) {
+    try {
+        $decoded = JWT::decode($_COOKIE['visit_token'], new Key($key, 'HS256'));
+
+        if ($decoded->data->isAuthorized) {
+            header("Location: /unauthorize");
+        } else {
+            header("Location: /unauthorize");
+        }
+    } catch (Exception $e) {
+        header("Location: /unauthorize");
     }
 }
 ?>

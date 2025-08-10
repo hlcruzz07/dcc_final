@@ -79,3 +79,18 @@ export function validateKiosk(formData) {
     });
   });
 }
+
+export function countVisitors() {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: "./api/countVisitors.php",
+      method: "GET",
+      success: function (response) {
+        resolve(response);
+      },
+      error: function (response) {
+        reject(response);
+      },
+    });
+  });
+}

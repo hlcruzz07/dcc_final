@@ -18,19 +18,19 @@ $page = "Location Scene";
     <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
     <style>
-    .custom-hotspot {
-        width: 32px;
-        height: 32px;
-        background: url("https://cdn-icons-png.flaticon.com/512/684/684908.png") center/contain no-repeat;
-        cursor: pointer;
-    }
+        .custom-hotspot {
+            width: 32px;
+            height: 32px;
+            background: url("https://cdn-icons-png.flaticon.com/512/684/684908.png") center/contain no-repeat;
+            cursor: pointer;
+        }
 
-    .destination-hotspot {
-        width: 32px;
-        height: 32px;
-        background: url("https://cdn-icons-png.flaticon.com/512/252/252025.png") center/contain no-repeat;
-        cursor: pointer;
-    }
+        .destination-hotspot {
+            width: 32px;
+            height: 32px;
+            background: url("https://cdn-icons-png.flaticon.com/512/252/252025.png") center/contain no-repeat;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -55,10 +55,17 @@ $page = "Location Scene";
                         <?php echo $_GET['location_name']  ?> Scene
 
                     </h1>
-                    <button type="button" data-modal-toggle="add-scene-modal"
-                        class="focus:outline-none text-xs text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 font-medium rounded-lg px-5 py-2.5 me-2">
-                        <i class="fa-solid fa-plus me-1"></i>Add Scene
-                    </button>
+                    <div>
+                        <button type="button" id="add-scene" data-modal-toggle="add-scene-modal"
+                            class="focus:outline-none text-xs text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 font-medium rounded-lg px-5 py-2.5 me-2">
+                            <i class="fa-solid fa-plus me-1"></i>Add Scene
+                        </button>
+                        <button type="button" id="delete-scene" data-id="<?php echo $_GET['location_id'] ?>"
+                            class="focus:outline-none text-xs text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800 font-medium rounded-lg px-5 py-2.5 me-2">
+                            <i class="fa-solid fa-trash me-1"></i>Delete Scene
+                        </button>
+
+                    </div>
                 </div>
                 <div class="" id="display_scene" style="height: 80vh;">
 

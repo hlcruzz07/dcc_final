@@ -10,6 +10,8 @@ $router->addRoute('about', './user/pages/auth/about.php');
 $router->addRoute('features', './user/pages/auth/features.php');
 $router->addRoute('user-location', './user/pages/auth/locations.php');
 $router->addRoute('visit', './user/pages/auth/visit.php');
+$router->addRoute('scanned', './user/pages/auth/scanned.php');
+$router->addRoute('unauthorize', './user/pages/unauthorize.php');
 //ADMIN SIDE
 $router->addRoute('admin-login', './admin/app.php');
 $router->addRoute('dashboard', './admin/pages/dashboard.php');

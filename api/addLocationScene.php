@@ -144,6 +144,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt3->bindParam(":pitch", $destination_pitch);
             $stmt3->bindParam(":yaw", $destination_yaw);
             $stmt3->execute();
+
+
+            $query4 = "UPDATE locations SET isAccessable = 1, isComplete = 1 WHERE id = :id;";
+            $stmt4 = $conn->prepare($query4);
+            $stmt4->bindParam(":id", $_POST['location_id']);
+            $stmt4->execute();
         }
 
         echo json_encode([

@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             "iss" => "", //domain
             "aud" => "", //domain
             "iat" => time(),
-            "exp" => time() + (3000 * 60), // 30 minutes expiration
+            "exp" => time() + (60 * 60 * 24 * 365), // 1 year
             "data" => [
                 "isAuthorized" => true,
             ]
@@ -47,9 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
         // Set JWT as HTTP-only cookie
         setcookie(
-            "kiosk_auth",       // cookie name
+            "kiosk_token",       // cookie name
             $jwt,                 // JWT token
-            time() + (3000 * 60),   // 30 minutes expiration
+            time() + (60 * 60 * 24 * 365), // 1 year 
             "/",                  // path
             "",                   // domain (current)
             false,                // secure (true if using HTTPS)

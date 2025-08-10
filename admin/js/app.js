@@ -1,7 +1,10 @@
 import SimpleDataTable from "../../Controllers/DataTableController.js";
 import sliceText from "../../Controllers/InputController.js";
 import initModal from "../../Controllers/ModalController.js";
-import { fetchAllVisitors } from "../../Controllers/VisitorController.js";
+import {
+  countVisitors,
+  fetchAllVisitors,
+} from "../../Controllers/VisitorController.js";
 import {
   addLocation,
   fetchAllLocations,
@@ -13,6 +16,9 @@ import {
   locationsHasScene,
   addLocationScene,
   fetchLocationScene,
+  deleteScene,
+  isLocationSceneComplete,
+  countLocationByType,
 } from "../../Controllers/LocationController.js";
 import {
   addArchive,
@@ -20,6 +26,8 @@ import {
   addActivity,
   fetchAllActivity,
   fetchAllAccount,
+  countAccount,
+  fetchAllFeedback,
 } from "../../Controllers/AdminController.js";
 
 $(document).ready(function () {
@@ -112,6 +120,11 @@ function DataTables() {
         )}</td>
          <td data-label="Type">${locationType}</td>
         <td data-label="Date">${element.date}</td>
+         <td data-label="Scene Completed">${
+           element.isComplete === 1
+             ? '<span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-green-900 dark:text-green-300">Yes</span>'
+             : '<span class="bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-red-900 dark:text-red-300">No</span>'
+         }</td>
         <td data-label="Accessibility">
           <span>
             <label class="inline-flex items-center cursor-pointer relative">
@@ -131,6 +144,7 @@ function DataTables() {
             </label>
           </span>
         </td>
+       
         <td data-label="Action">
           <div class="flex flex-wrap gap-2">
               <button
@@ -170,7 +184,7 @@ function DataTables() {
       tbody.append(content);
     });
     SimpleDataTable(tableSelector, {
-      hiddenColumns: [5, 6],
+      hiddenColumns: [6, 7],
       filename: "Locations - list",
     });
   });
@@ -310,6 +324,48 @@ function DataTables() {
     .catch((error) => {
       console.log("Error fetching account data: " + error);
     });
+
+  fetchAllVisitors()
+    .then((response) => {
+      if (!response.status) {
+        alert(response.message);
+        return;
+      }
+      const tableSelector = "#visitors-table";
+      const tbody = $(`${tableSelector} tbody`);
+      tbody.empty();
+      response.data.forEach((element) => {
+        const content = `
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+            <td data-label="#">${element.id}</td>
+            <td data-label="First Name">${element.fname}</td>
+            <td data-label="Last Name">${element.lname}</td>
+            <td data-label="Phone #">${element.phone_num}</td>
+            <td data-label="Province">${element.province}</td>
+            <td data-label="City">${element.city}</td>
+            <td data-label="Barangay">${element.brgy}</td>
+            <td data-label="Street">${element.street}</td> 
+            <td data-label="Purpose" title="${element.purpose}">${sliceText(
+          element.purpose,
+          25
+        )}</td> 
+            <td data-label="Description" title="${
+              element.visit_desc
+            }">${sliceText(element.visit_desc, 50)}</td> 
+            <td data-label="Destination">${element.location_name}</td>     
+            <td data-label="Date Visited">${element.date_visited}</td>        
+          </tr>
+        `;
+        tbody.append(content);
+      });
+      SimpleDataTable(tableSelector, {
+        hiddenColumns: [],
+        filename: "Visitors - list",
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 }
 function FetchEvents() {
   let splide;
@@ -405,6 +461,118 @@ function FetchEvents() {
       "src",
       img === "" ? "./assets/img/default.jpg" : img
     );
+  });
+
+  $(document).ready(async function () {
+    const location_id = url.searchParams.get("location_id");
+    if (location_id) {
+      try {
+        const response = await isLocationSceneComplete(location_id);
+        if (!response.status) {
+          console.error(response.message);
+          return;
+        }
+
+        if (response.data.isComplete === 1) {
+          $("#add-scene").remove();
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  });
+
+  $(document).ready(async function () {
+    try {
+      const response = await countLocationByType();
+      if (!response.status) {
+        console.error(response.message);
+        return;
+      }
+      response.data.forEach((el) => {
+        switch (el.location_type) {
+          case "Room":
+            $("#total-room").html(el.total_rows);
+            break;
+          case "Office":
+            $("#total-office").html(el.total_rows);
+            break;
+          case "Building":
+            $("#total-building").html(el.total_rows);
+            break;
+          case "Facility":
+            $("#total-facility").html(el.total_rows);
+            break;
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+
+    try {
+      const response = await countVisitors();
+      if (!response.status) {
+        console.error(response.message);
+        return;
+      }
+      $("#total-visitor").html(
+        response.data.length === 0 ? 0 : response.data[0].total_rows
+      );
+    } catch (error) {
+      console.error(error);
+    }
+
+    try {
+      const response = await countAccount();
+      if (!response.status) {
+        console.error(response.message);
+        return;
+      }
+      $("#total-account").html(
+        response.data.length === 0 ? 0 : response.data[0].total_rows
+      );
+    } catch (error) {
+      console.error(error);
+    }
+    try {
+      const response = await fetchAllFeedback();
+      if (!response.status) {
+        console.error(response.message);
+        return;
+      }
+
+      console.log(response);
+      response.data.forEach((el) => {
+        const content = `
+        <div class="flex gap-3 items-center cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700/50 p-3 relative">
+            <span
+                class="top-3 left-3 absolute z-1 w-3.5 h-3.5 bg-green-400 border-2 border-white dark:border-gray-800 rounded-full"></span>
+            <div
+                class="relative inline-flex items-center justify-center text-center w-11 h-11 overflow-hidden bg-gray-200 rounded-full dark:bg-gray-600">
+                <span class="font-medium text-gray-600 dark:text-gray-300">JL</span>
+
+            </div>
+            <div>
+                <div class="flex justify-between gap-10 mb-1">
+                  <h1 class="text-xs font-light text-black dark:text-white">harold.cruz0407@gmail.com</h1>
+                  <span class="text-[11px] text-gray-500 whitespace-nowrap">1 minute ago</span>
+                </div>
+                <!--  text-black dark:text-white  isRead=text-gray-500 -->
+
+                <small class="text-[11px] text-black dark:text-white">Lorem ipsum dolor sit, amet
+                    adipisicingelitsssss...</small>
+                <!-- 45 maxlenght -->
+            </div>
+        </div>
+        `;
+
+        $("#notif-cont").append(content);
+        $("#notif-cont").append(content);
+        $("#notif-cont").append(content);
+      });
+    } catch (error) {
+      console.error(error);
+    }
   });
 }
 function ClickEvents() {
@@ -590,7 +758,6 @@ function ClickEvents() {
       }
       addActivity("Added New Location Scene", "CREATE");
       alert("Location Scene Added");
-      console.log(response);
     } catch (error) {
       console.log(error);
     }
@@ -645,7 +812,6 @@ function DeleteEvents() {
 
     const confirmDel = confirm("Are you sure you want to delete this?");
     if (!confirmDel) return;
-    console.log(id);
     try {
       const response = await deleteTag(id);
       if (!response.status) {
@@ -658,6 +824,24 @@ function DeleteEvents() {
       location.reload();
     } catch (error) {
       console.log(`Error deleting location tag: ${error}`);
+    }
+  });
+  $(document).on("click", "#delete-scene", async function () {
+    const id = $(this).attr("data-id");
+    const confirmDel = confirm("Are you sure you want to delete this?");
+    if (!confirmDel) return;
+    try {
+      const response = await deleteScene(id);
+
+      if (!response.status) {
+        alert(response.message);
+        return;
+      }
+      addActivity("Deleted Location Scene", "DELETE");
+      alert("Location Scene Deleted");
+      location.reload(response);
+    } catch (error) {
+      console.log(error);
     }
   });
 }

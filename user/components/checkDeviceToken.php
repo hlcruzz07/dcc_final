@@ -5,13 +5,12 @@ include "./lib/key.php";
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
-if (isset($_COOKIE['kiosk_auth'])) {
+if (isset($_COOKIE['kiosk_token'])) {
     try {
-        $decoded_kiosk = JWT::decode($_COOKIE['kiosk_auth'], new Key($key, 'HS256'));
+        $decoded_kiosk = JWT::decode($_COOKIE['kiosk_token'], new Key($key, 'HS256'));
     } catch (Exception $e) {
         // Clear invalid token
-        setcookie("kiosk_auth", "", time() - 3600, "/");
-        setcookie("token", "", time() - 3600, "/");
+        setcookie("kiosk_token", "", time() - 3600, "/");
         echo "
             <script>
             alert('Invalid Token');
@@ -20,7 +19,7 @@ if (isset($_COOKIE['kiosk_auth'])) {
         exit();
     }
 } else {
-    setcookie("token", "", time() - 3600, "/");
+    setcookie("kiosk_token", "", time() - 3600, "/");
     echo "
     <script>
     alert('Unauthorized User');
@@ -32,13 +31,10 @@ if (isset($_COOKIE['kiosk_auth'])) {
 if (isset($_COOKIE['token'])) {
     try {
         $decoded_kiosk = JWT::decode($_COOKIE['token'], new Key($key, 'HS256'));
-        echo "
-        <script>
-        window.location.href = '/home';
-        </script>";
+        header("Location: /home");
     } catch (Exception $e) {
         // Clear invalid token
-        setcookie("kiosk_auth", "", time() - 3600, "/");
+        setcookie("kiosk_token", "", time() - 3600, "/");
         setcookie("token", "", time() - 3600, "/");
         echo "
             <script>

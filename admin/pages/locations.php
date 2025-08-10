@@ -41,6 +41,7 @@ $page = "Locations";
                         class="focus:outline-none text-xs text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 font-medium rounded-lg px-5 py-2.5 me-2">
                         <i class="fa-solid fa-plus me-1"></i>Add
                     </button>
+
                 </div>
                 <div class="p-5 px-7">
                     <table id="locations-table" class="table w-full text-gray-900 dark:text-gray-100">
@@ -97,7 +98,16 @@ $page = "Locations";
                                         </svg>
                                     </span>
                                 </th>
-
+                                <th>
+                                    <span class="flex items-center">
+                                        Scene Completed
+                                        <svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                            width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4" />
+                                        </svg>
+                                    </span>
+                                </th>
                                 <th>
                                     <span class="flex items-center">
                                         Accessibility
@@ -108,6 +118,7 @@ $page = "Locations";
                                         </svg>
                                     </span>
                                 </th>
+
                                 <th>
                                     <span class="flex items-center">
                                         Action

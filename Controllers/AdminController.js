@@ -99,14 +99,42 @@ export function fetchAllAccount() {
   });
 }
 
-export function addAdminNotif(message) {
+export function addFeedback(formData) {
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: "./api/adminLogin.php",
+      url: "./api/addFeedback.php",
       method: "POST",
-      data: {
-        message: message,
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function (response) {
+        resolve(response);
       },
+      error: function (response) {
+        reject(response);
+      },
+    });
+  });
+}
+export function fetchAllFeedback() {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: "./api/fetchAllFeedback.php",
+      method: "GET",
+      success: function (response) {
+        resolve(response);
+      },
+      error: function (response) {
+        reject(response);
+      },
+    });
+  });
+}
+export function countAccount() {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: "./api/countAccount.php",
+      method: "GET",
       success: function (response) {
         resolve(response);
       },

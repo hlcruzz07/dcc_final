@@ -206,3 +206,70 @@ export function fetchLocationSearch(formData) {
     });
   });
 }
+
+export function fetchLocation() {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: "./api/fetchLocation.php",
+      method: "GET",
+      success: function (response) {
+        resolve(response);
+      },
+      error: function (response) {
+        reject(response);
+      },
+    });
+  });
+}
+export function deleteScene(id) {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: "./api/deleteScene.php",
+      method: "POST",
+      data: {
+        id: id,
+      },
+      success: function (response) {
+        resolve(response);
+      },
+      error: function (response) {
+        reject(response);
+      },
+    });
+  });
+}
+
+export function isLocationSceneComplete(id) {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: "./api/isLocationSceneComplete.php",
+      method: "POST",
+      data: {
+        id: id,
+      },
+      success: function (response) {
+        resolve(response);
+      },
+      error: function (response) {
+        reject(response);
+      },
+    });
+  });
+}
+export function countLocationByType(type) {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: "./api/countLocationByType.php",
+      method: "GET",
+      data: {
+        type: type,
+      },
+      success: function (response) {
+        resolve(response);
+      },
+      error: function (response) {
+        reject(response);
+      },
+    });
+  });
+}

@@ -2,7 +2,6 @@
 header('Content-Type: application/json');
 include "../lib/conn.php";
 
-$allTypes = ["Building", "Facility", "Office", "Room"];
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {

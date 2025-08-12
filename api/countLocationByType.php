@@ -8,6 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $query = "
         SELECT location_type, COUNT(*) AS total_rows
         FROM locations
+        WHERE status = 1
         GROUP BY location_type
     ";
     $stmt = $conn->prepare($query);

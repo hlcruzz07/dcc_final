@@ -1,5 +1,5 @@
 import SimpleDataTable from "../../Controllers/DataTableController.js";
-import sliceText from "../../Controllers/InputController.js";
+import sliceText, { timeAgo } from "../../Controllers/InputController.js";
 import initModal from "../../Controllers/ModalController.js";
 import {
   countVisitors,
@@ -28,6 +28,9 @@ import {
   fetchAllAccount,
   countAccount,
   fetchAllFeedback,
+  countFeedback,
+  markAllRead,
+  clearNotification,
 } from "../../Controllers/AdminController.js";
 
 $(document).ready(function () {
@@ -535,41 +538,139 @@ function FetchEvents() {
       console.error(error);
     }
     try {
-      const response = await fetchAllFeedback();
+      sessionStorage.setItem("notifLimit", 10);
+      let obs; // Declare observer outside so we can reuse it
+
+      const loadingContent = `
+      <div id='loading'>
+        <div class="flex items-center gap-3 p-3 animate-pulse">
+          <div class="relative inline-flex items-center justify-center text-center w-11 h-11 overflow-hidden bg-gray-200 rounded-full dark:bg-gray-600">
+            <span class="font-medium text-gray-600 dark:text-gray-300">?</span>
+          </div>
+          <div>
+            <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-32 mb-2"></div>
+            <div class="w-48 h-2 bg-gray-200 rounded-full dark:bg-gray-700"></div>
+          </div>
+        </div>
+      </div>
+      `;
+      function setupObserver() {
+        const loading = document.querySelectorAll("#loading");
+        if (loading.length > 0) {
+          // If observer already exists, disconnect it first
+          if (obs) obs.disconnect();
+
+          obs = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                let notifLimit = parseInt(sessionStorage.getItem("notifLimit"));
+                notifLimit += 10;
+                setTimeout(() => {
+                  sessionStorage.setItem("notifLimit", notifLimit);
+                }, 1000);
+                obs.disconnect();
+              }
+            });
+          });
+
+          obs.observe(loading[0]);
+        }
+      }
+      let notifInterval = null; // store the interval ID
+
+      $(document).on("click", "#openNotif", function () {
+        if (notifInterval) clearInterval(notifInterval);
+        notifInterval = setInterval(getFeedback, 2000);
+        setupObserver();
+      });
+
+      const getFeedback = async () => {
+        const response = await fetchAllFeedback(
+          sessionStorage.getItem("notifLimit")
+        );
+
+        if (!response.status) {
+          console.error(response.message);
+          return;
+        }
+
+        $("#notif-cont").empty();
+        response.data.forEach((el) => {
+          const isReadText = el.is_read
+            ? "text-gray-500 dark:text-gray-600"
+            : "text-black dark:text-white";
+          const isRead = el.is_read === 1;
+          const content = `
+            <div class="flex gap-3 items-center cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700/50 p-3 relative">
+              ${
+                isRead
+                  ? ``
+                  : `<span class="top-4 left-4 absolute z-1 w-2 h-2 bg-green-500 rounded-full"></span>`
+              }
+                <div class="relative inline-flex items-center justify-center text-center w-11 h-11 overflow-hidden bg-gray-200 rounded-full dark:bg-gray-600">
+                    <span class="font-medium text-xs text-gray-600 dark:text-gray-300">${el.fname.slice(
+                      0,
+                      1
+                    )}${el.lname.slice(0, 1)}</span>
+                </div>
+                <div class="grow">
+                    <div class="flex justify-between gap-10 mb-1">
+                      <h1 class="text-xs font-light ${isReadText}">${
+            el.email
+          }</h1>
+                      <span class="text-[11px] text-gray-500 whitespace-nowrap">${timeAgo(
+                        el.created_at
+                      )} ago</span>
+                    </div>
+                    <small class="text-[11px] ${isReadText}">${sliceText(
+            el.message,
+            50
+          )}</small>
+                </div>
+            </div>
+        `;
+          $("#notif-cont").append(content);
+        });
+
+        $("#notif-cont").append(loadingContent);
+        setupObserver();
+
+        if (sessionStorage.getItem("notifLimit") >= response.total) {
+          clearInterval(notifInterval);
+          notifInterval = null;
+          $("#loading").remove();
+        }
+
+        if (response.data.length === 0) {
+          $("#notif-cont").append(
+            `<div class="p-3 text-center">
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No notifications found</p>
+            </div>`
+          );
+        }
+      };
+    } catch (error) {
+      console.error(error);
+    }
+
+    try {
+      const response = await countFeedback();
       if (!response.status) {
         console.error(response.message);
         return;
       }
 
-      console.log(response);
-      response.data.forEach((el) => {
-        const content = `
-        <div class="flex gap-3 items-center cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700/50 p-3 relative">
-            <span
-                class="top-3 left-3 absolute z-1 w-3.5 h-3.5 bg-green-400 border-2 border-white dark:border-gray-800 rounded-full"></span>
-            <div
-                class="relative inline-flex items-center justify-center text-center w-11 h-11 overflow-hidden bg-gray-200 rounded-full dark:bg-gray-600">
-                <span class="font-medium text-gray-600 dark:text-gray-300">JL</span>
-
-            </div>
-            <div>
-                <div class="flex justify-between gap-10 mb-1">
-                  <h1 class="text-xs font-light text-black dark:text-white">harold.cruz0407@gmail.com</h1>
-                  <span class="text-[11px] text-gray-500 whitespace-nowrap">1 minute ago</span>
-                </div>
-                <!--  text-black dark:text-white  isRead=text-gray-500 -->
-
-                <small class="text-[11px] text-black dark:text-white">Lorem ipsum dolor sit, amet
-                    adipisicingelitsssss...</small>
-                <!-- 45 maxlenght -->
-            </div>
-        </div>
-        `;
-
-        $("#notif-cont").append(content);
-        $("#notif-cont").append(content);
-        $("#notif-cont").append(content);
-      });
+      if (response.rows.total_rows === 0) {
+        $("#totalNotif").remove();
+        return;
+      }
+      $("#totalNotif").html(
+        `${
+          response.rows.total_rows.toString().length > 3
+            ? response.rows.total_rows.toString().slice(0, 3) + "+"
+            : response.rows.total_rows.toString()
+        }`
+      );
     } catch (error) {
       console.error(error);
     }
@@ -762,6 +863,20 @@ function ClickEvents() {
       console.log(error);
     }
   });
+
+  $(document).on("click", "#mark-all-read-btn", async function () {
+    try {
+      const response = await markAllRead();
+
+      if (!response.status) {
+        alert(response.message);
+        return;
+      }
+      addActivity("Marked All Feedback as Read", "UPDATE");
+    } catch (error) {
+      console.log(error);
+    }
+  });
 }
 
 function DeleteEvents() {
@@ -840,6 +955,24 @@ function DeleteEvents() {
       addActivity("Deleted Location Scene", "DELETE");
       alert("Location Scene Deleted");
       location.reload(response);
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  $(document).on("click", "#clear-notifications-btn", async function () {
+    try {
+      const confirmDel = confirm(
+        "Are you sure you want to clear all notifications?"
+      );
+      if (!confirmDel) return;
+
+      const response = await clearNotification();
+      if (!response.status) {
+        alert(response.message);
+        return;
+      }
+      addActivity("Cleared Notifications", "DELETE");
     } catch (error) {
       console.log(error);
     }

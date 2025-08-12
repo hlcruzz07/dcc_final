@@ -7,12 +7,13 @@
         <h1 class="text-sm text-gray-800 dark:text-white">Admin Dashboard</h1>
     </div>
     <div class="flex items-center gap-5">
-        <div class="relative w-10 h-10 flex items-center justify-center cursor-pointer"
+        <div class="relative w-10 h-10 flex items-center justify-center cursor-pointer" id="openNotif"
             data-drawer-target="notif-drawer" data-drawer-show="notif-drawer" data-drawer-placement="right"
             aria-controls="notif-drawer">
             <i class="fa-solid fa-bell text-2xl text-green-600 dark:text-green-400"></i>
             <span
-                class="top-0 right-0 absolute border-gray-300 dark:border-gray-700 bg-red-500 text-[8px] p-1 rounded-full text-white">22</span>
+                class="top-0 right-0 absolute border-gray-300 dark:border-gray-700 bg-red-500 text-[10px] p-1 rounded-full text-white"
+                id="totalNotif"></span>
         </div>
         <div class="relative border rounded-full border-gray-300 dark:border-gray-600">
             <img loading="lazy" class="w-10 h-10 rounded-full object-cover" src="./assets/img/default.jpg" alt="">

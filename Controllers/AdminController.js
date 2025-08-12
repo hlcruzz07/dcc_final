@@ -116,11 +116,14 @@ export function addFeedback(formData) {
     });
   });
 }
-export function fetchAllFeedback() {
+export function fetchAllFeedback(limit) {
   return new Promise((resolve, reject) => {
     $.ajax({
       url: "./api/fetchAllFeedback.php",
       method: "GET",
+      data: {
+        limit: limit,
+      },
       success: function (response) {
         resolve(response);
       },
@@ -135,6 +138,48 @@ export function countAccount() {
     $.ajax({
       url: "./api/countAccount.php",
       method: "GET",
+      success: function (response) {
+        resolve(response);
+      },
+      error: function (response) {
+        reject(response);
+      },
+    });
+  });
+}
+export function countFeedback() {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: "./api/countFeedback.php",
+      method: "GET",
+      success: function (response) {
+        resolve(response);
+      },
+      error: function (response) {
+        reject(response);
+      },
+    });
+  });
+}
+export function markAllRead() {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: "./api/markAllRead.php",
+      method: "POST",
+      success: function (response) {
+        resolve(response);
+      },
+      error: function (response) {
+        reject(response);
+      },
+    });
+  });
+}
+export function clearNotification() {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: "./api/clearNotification.php",
+      method: "POST",
       success: function (response) {
         resolve(response);
       },

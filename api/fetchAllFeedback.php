@@ -4,6 +4,7 @@ include "../lib/conn.php";
 
 if ($_SERVER['REQUEST_METHOD'] === "GET") {
     try {
+        $limit = $_GET['limit'];
         $query = "SELECT 
         id, 
         email, 
@@ -11,18 +12,27 @@ if ($_SERVER['REQUEST_METHOD'] === "GET") {
         lname, 
         message, 
         is_read,
-        DATE_FORMAT(created_at, '%M %d, %Y %h:%i %p') AS created_at
+        created_at
         FROM feedback
         ORDER BY id DESC
+        LIMIT :limit
         ;";
 
         $stmt = $conn->prepare($query);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        $totalQuery = "SELECT COUNT(*) as total_rows FROM feedback;";
+        $totalStmt = $conn->prepare($totalQuery);
+        $totalStmt->execute();
+        $total = $totalStmt->fetch(PDO::FETCH_ASSOC);
+
+
         echo json_encode([
             "status" => true,
-            "data" => $data
+            "data" => $data,
+            "total" => $total['total_rows']
         ]);
     } catch (PDOException $e) {
         echo json_encode([
